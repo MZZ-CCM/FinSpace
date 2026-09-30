@@ -1,9 +1,8 @@
 /**
  * Optional live prices — every source here is free:
- *  • CoinGecko public API — no key, no account (crypto)
- *  • Finnhub free tier — user-supplied free key (US stocks & ETFs)
- *  • Frankfurter (ECB rates) — no key, converts USD quotes into your currency
- * Nothing is ever required: manual prices always work.
+ *  • CoinGecko public API, then Coinbase spot prices — no key, no account (crypto)
+ *  • Frankfurter (ECB rates) — no key (exchange rates)
+ * Stocks, funds and bonds are priced by hand: no free source works without an API key.
  */
 import type { Holding } from './types'
 
@@ -11,7 +10,7 @@ export interface QuoteResult {
   holdingId: string
   price?: number
   error?: string
-  source?: 'finnhub' | 'coingecko' | 'coinbase'
+  source?: 'coingecko' | 'coinbase'
 }
 
 /** Free exchange rate from the ECB via Frankfurter (no key). Returns base-currency units per 1 `from`. */
@@ -34,15 +33,7 @@ async function getJSON(url: string) {
   return res.json()
 }
 
-async function usdTo(currency: string): Promise<number> {
-  if (currency === 'USD') return 1
-  const j = await getJSON(`https://api.frankfurter.dev/v1/latest?base=USD&symbols=${currency}`)
-  const rate = j?.rates?.[currency]
-  if (!rate) throw new Error(`No free exchange rate for ${currency}`)
-  return rate
-}
-
-export async function fetchQuotes(holdings: Holding[], currency: string, finnhubKey?: string): Promise<QuoteResult[]> {
+export async function fetchQuotes(holdings: Holding[], currency: string): Promise<QuoteResult[]> {
   const out: QuoteResult[] = []
   const crypto = holdings.filter((h) => h.assetType === 'crypto')
   const equities = holdings.filter((h) => h.assetType !== 'crypto')
@@ -74,27 +65,6 @@ export async function fetchQuotes(holdings: Holding[], currency: string, finnhub
   }
   out.push(...gotCrypto.values())
 
-  if (equities.length) {
-    if (!finnhubKey) {
-      for (const h of equities) out.push({ holdingId: h.id, error: 'Add a free Finnhub key in Settings to fetch stock prices' })
-    } else {
-      let fx = 1
-      try {
-        fx = await usdTo(currency)
-      } catch (e) {
-        for (const h of equities) out.push({ holdingId: h.id, error: (e as Error).message })
-        return out
-      }
-      for (const h of equities) {
-        try {
-          const j = await getJSON(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(h.symbol)}&token=${encodeURIComponent(finnhubKey)}`)
-          if (j?.c) out.push({ holdingId: h.id, price: Math.round(j.c * fx * 100) / 100, source: 'finnhub' })
-          else out.push({ holdingId: h.id, error: `No quote for ${h.symbol} (free tier covers US listings)` })
-        } catch (e) {
-          out.push({ holdingId: h.id, error: (e as Error).message })
-        }
-      }
-    }
-  }
+  for (const h of equities) out.push({ holdingId: h.id, error: `Update ${h.symbol} by hand — live prices cover crypto only` })
   return out
 }

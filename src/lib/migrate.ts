@@ -62,7 +62,6 @@ function cleanSettings(raw: Raw): Settings {
     name: str(r.name, 60),
     currency: base,
     theme: oneOf(r.theme, ['dark', 'light', 'system'] as const, 'system')!,
-    finnhubKey: optStr(r.finnhubKey, 100),
     onboarded: r.onboarded === true,
     sampleData: r.sampleData === true,
     customCategories: arr(r.customCategories)

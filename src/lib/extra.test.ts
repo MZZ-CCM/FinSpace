@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { EMPTY } from './migrate'
+import { EMPTY, migrate } from './migrate'
 import type { AppData } from './types'
 import { parseCommand } from './command'
 import { createVaultKey, open, seal } from './vault'
@@ -100,5 +100,13 @@ describe('CSV export safety', () => {
     expect(esc(-12.5)).toBe('-12.5')
     expect(esc('-12.50')).toBe('-12.50')
     expect(esc('Tesco, Main St')).toBe('"Tesco, Main St"')
+  })
+})
+
+describe('removed settings', () => {
+  it('drops any saved Finnhub API key when data is loaded or restored', () => {
+    const d = migrate({ ...EMPTY, settings: { ...EMPTY.settings, finnhubKey: 'secret-key-123' } })
+    expect('finnhubKey' in d.settings).toBe(false)
+    expect(JSON.stringify(d)).not.toContain('secret-key-123')
   })
 })

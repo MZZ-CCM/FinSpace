@@ -159,7 +159,6 @@ export interface Settings {
   /** Display/base currency. */
   currency: string
   theme: 'dark' | 'light' | 'system'
-  finnhubKey?: string
   onboarded: boolean
   sampleData: boolean
   customCategories: CustomCategory[]
