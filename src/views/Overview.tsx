@@ -91,6 +91,20 @@ export function Overview() {
         </div>
       )}
 
+      {/* ─── Cards (top of the dashboard) ─── */}
+      {!hidden.has('cards') && (
+        <section className="panel span-12">
+          <div className="panel-head">
+            <div>
+              <h2 className="panel-title">Cards & accounts</h2>
+              <div className="panel-sub">{data.accounts.length} account{data.accounts.length === 1 ? '' : 's'} · swipe, drag or use ← → to flip through</div>
+            </div>
+            <button className="link-btn" onClick={() => go({ page: 'accounts' })}>Manage accounts <ArrowRight size={14} /></button>
+          </div>
+          <CardDeck accounts={data.accounts.filter((a) => !a.archived)} onOpen={(a) => go({ page: 'accounts', id: a.id })} />
+        </section>
+      )}
+
       {/* ─── Net worth ─── */}
       <section className="hero span-12" aria-label="Net worth">
         <div className="hero-top">
@@ -194,19 +208,6 @@ export function Overview() {
           ) : (
             <Empty icon={<Flame size={24} />} title="No spending logged" body={`Nothing went out in ${monthLabel(month)} yet.`} action={<button className="btn btn-sm" onClick={() => open({ kind: 'tx' })}>Add money out</button>} />
           )}
-        </section>
-      )}
-
-      {!hidden.has('cards') && (
-        <section className="panel span-12">
-          <div className="panel-head">
-            <div>
-              <h2 className="panel-title">Cards & accounts</h2>
-              <div className="panel-sub">{data.accounts.length} account{data.accounts.length === 1 ? '' : 's'} · swipe, drag or use ← → to flip through</div>
-            </div>
-            <button className="link-btn" onClick={() => go({ page: 'accounts' })}>Manage accounts <ArrowRight size={14} /></button>
-          </div>
-          <CardDeck accounts={data.accounts.filter((a) => !a.archived)} onOpen={(a) => go({ page: 'accounts', id: a.id })} />
         </section>
       )}
 
