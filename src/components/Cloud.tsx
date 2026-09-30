@@ -18,6 +18,7 @@ import { dateLabel, sinceLabel } from '../lib/format'
 import { cloudConfigured, currentUser, deleteAccount, deleteVault, fetchVault, onAuthChange, pushVault, sendReset, signIn, signOut, signUp, updatePassword } from '../lib/cloud'
 import { decryptSnapshot, encryptSnapshot, type EncryptedFile } from '../lib/sync'
 import { openWithKey } from '../lib/vault'
+import { AuthShowcase } from './AuthShowcase'
 import { Field } from './ui'
 import type { AppData } from '../lib/types'
 
@@ -180,15 +181,16 @@ export function CloudAutoWriter() {
 
 const strong = (pw: string) => pw.length >= 10 && /[A-Za-z]/.test(pw) && /[0-9\W_]/.test(pw)
 
-function Shell({ children, title, lede }: { children?: ReactNode; title: ReactNode; lede?: ReactNode }) {
+function Shell({ children, title, lede, showcase }: { children?: ReactNode; title: ReactNode; lede?: ReactNode; showcase?: boolean }) {
   return (
-    <div className="onboard">
+    <div className={`onboard ${showcase ? 'auth' : ''}`}>
+      {showcase && <AuthShowcase />}
       <div className="onboard-card page-enter">
         <div className="brand">
           <div className="brand-mark">F</div>
           <div><div className="brand-name">Finspace</div><div className="brand-sub">Private wealth cockpit</div></div>
         </div>
-        <h1 style={{ fontSize: 36 }}>{title}</h1>
+        <h1 className="auth-title">{title}</h1>
         {lede && <p className="lede">{lede}</p>}
         {children}
         <div className="promise">
@@ -217,7 +219,7 @@ function SignInScreen() {
 
   if (mode === 'sent') {
     return (
-      <Shell title="Check your email" lede={<>We sent a confirmation link to <b>{email}</b>. Open it on this device to finish creating your account, then sign in.</>}>
+      <Shell showcase title="Check your email" lede={<>We sent a confirmation link to <b>{email}</b>. Open it on this device to finish creating your account, then sign in.</>}>
         <button className="btn" onClick={() => setMode('signin')}>Back to sign in</button>
       </Shell>
     )
@@ -225,6 +227,7 @@ function SignInScreen() {
 
   return (
     <Shell
+      showcase
       title={mode === 'signup' ? <>Create your <em>secure</em> account</> : mode === 'reset' ? 'Reset your password' : <>Welcome to <em>Finspace</em></>}
       lede={mode === 'signup' ? 'An account keeps your data protected and available on your devices. Your finances are encrypted on this device before they’re saved — we can’t read them.' : mode === 'reset' ? 'Enter your email and we’ll send you a link to choose a new password.' : 'Sign in to your account to see your money.'}
     >
