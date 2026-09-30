@@ -1,9 +1,9 @@
 /* Finspace service worker — offline app shell + notification clicks.
    Only same-origin GET requests are cached. API calls (prices, rates, Supabase) always go to the network. */
-const CACHE = 'finspace-v1'
+const CACHE = 'finspace-v2'
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/index.html', '/manifest.webmanifest', '/icon.svg'])).then(() => self.skipWaiting()))
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/index.html', '/manifest.webmanifest', '/icon.svg', '/icons/apple-touch-icon.png', '/icons/icon-192.png'])).then(() => self.skipWaiting()))
 })
 
 self.addEventListener('activate', (e) => {
@@ -19,7 +19,7 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(fetch(req).then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put('/index.html', copy)); return res }).catch(() => caches.match('/index.html')))
     return
   }
-  if (url.pathname.startsWith('/assets/') || url.pathname.endsWith('.woff2') || url.pathname === '/icon.svg') {
+  if (url.pathname.startsWith('/assets/') || url.pathname.endsWith('.woff2') || url.pathname === '/icon.svg' || url.pathname.startsWith('/icons/')) {
     // fingerprinted files never change: cache first
     e.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)) } return res })))
   }
