@@ -759,7 +759,7 @@ export function PricesSheet() {
   const { close } = useUI()
   const holdings = data.holdings.filter((h) => sharesAt(tradesFor(data.trades, h.id), todayISO()) > 0)
   const [vals, setVals] = useState<Record<string, string>>({})
-  const [fetched, setFetched] = useState<Record<string, { source: 'finnhub' | 'coingecko' | 'coinbase'; at: string }>>({})
+  const [fetched, setFetched] = useState<Record<string, { source: 'coingecko' | 'coinbase'; at: string }>>({})
   const [date, setDate] = useState(todayISO())
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -767,7 +767,7 @@ export function PricesSheet() {
   const fetchLive = async () => {
     setLoading(true)
     setErrors({})
-    const res = await fetchQuotes(holdings, data.settings.currency, data.settings.finnhubKey)
+    const res = await fetchQuotes(holdings, data.settings.currency)
     const next = { ...vals }
     const f = { ...fetched }
     const errs: Record<string, string> = {}
@@ -843,7 +843,7 @@ export function PricesSheet() {
         })}
       </div>
       <p className="muted mt-24" style={{ fontSize: 12 }}>
-        Live prices are optional and free: crypto via CoinGecko or Coinbase (no key, rate-limited), stocks via Finnhub’s free tier (your own key from Settings, 60 calls a minute, US listings). If a service stops working, manual prices keep working.
+        Live prices are free and cover crypto only (CoinGecko, with Coinbase as a backup; no key needed). Enter stock, fund and bond prices by hand. If a service stops working, manual prices keep working.
       </p>
     </Sheet>
   )
