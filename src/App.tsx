@@ -19,6 +19,8 @@ import { CommandPalette } from './components/CommandPalette'
 import { AuthGate, CloudAutoWriter, storageLabel, useCloud } from './components/Cloud'
 import { MonthSwitch } from './components/ui'
 import { runNotifications } from './lib/notify'
+import { InstallHint } from './components/InstallHint'
+import { ShareAppButton } from './components/ShareApp'
 
 type Page = Route['page']
 const NAV: { page: Page; label: string; icon: typeof Home; key: string; sub: string }[] = [
@@ -139,7 +141,7 @@ export function App() {
   }
 
   if (route.page === 'privacy' && (locked || !data.settings.onboarded)) {
-    return <><div className="ambient"><div className="grain" /></div><div className="content" style={{ margin: '0 auto', position: 'relative', zIndex: 1 }}><h1 style={{ font: '600 28px var(--display)' }}>Privacy & terms</h1><a href="#/" className="link-btn">← Back</a><div className="mt-16"><Privacy /></div></div></>
+    return <><div className="ambient"><div className="grain" /></div><div className="content" style={{ margin: '0 auto', position: 'relative', zIndex: 1 }}><h1 style={{ font: '500 30px var(--serif)' }}>Privacy & terms</h1><a href="#/" className="link-btn">← Back</a><div className="mt-16"><Privacy /></div></div></>
   }
   if (locked) return <><div className="ambient"><div className="grain" /></div><AuthGate>{null}</AuthGate>{toastStack()}</>
   if (!data.settings.onboarded) return <><div className="ambient"><div className="grain" /></div><Onboarding /><CloudAutoWriter />{toastStack()}</>
@@ -200,6 +202,7 @@ export function App() {
               <button className="btn btn-icon btn-ghost" onClick={() => dispatch({ type: 'settings', patch: { privacy: !privacy } })} aria-pressed={privacy} aria-label={privacy ? 'Show amounts' : 'Hide amounts'} title={privacy ? 'Show amounts (H)' : 'Hide amounts (H)'}>
                 {privacy ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
+              <ShareAppButton />
               <button className="btn btn-icon btn-ghost" onClick={lockNow} aria-label="Lock Finspace" title="Lock now"><Lock size={18} /></button>
             </div>
           </header>
@@ -212,6 +215,7 @@ export function App() {
                 </button>
               </div>
             )}
+            {route.page === 'overview' && <InstallHint />}
             {route.page === 'overview' && <Overview />}
             {route.page === 'money' && <Money />}
             {route.page === 'accounts' && <Accounts />}
