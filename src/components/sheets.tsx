@@ -1,4 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
+import { ShareAppButton } from './ShareApp'
+import { readStatement, STATEMENT_ACCEPT, StatementError, type Statement } from '../lib/statements'
 import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, FileUp, RefreshCw, Trash2, X } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { useUI } from '../lib/ui'
@@ -7,7 +9,7 @@ import { ACCOUNT_KINDS, ADJUSTMENT_CATEGORY, ASSET_TYPES, CARD_SKINS, CURRENCIES
 import { addMonths, currencySymbol, dateLabel, money, monthEnd, num, shortDate, sinceLabel, todayISO, uid, sourceName } from '../lib/format'
 import { advance, cashBalanceAt, flowBetween, fxRate, goalProgress, lastPricePoint, sharesAt, tradesFor } from '../lib/calc'
 import { fetchQuotes } from '../lib/prices'
-import { guessDateFormat, parseAmount, parseCSV, parseDate, type DateFormat } from '../lib/csv'
+import { guessDateFormat, parseAmount, parseDate, type DateFormat } from '../lib/csv'
 import { ConfirmDialog, Field, Progress, Sheet, Skeleton, readAmount } from './ui'
 import { AccountCard } from './AccountCard'
 
@@ -862,16 +864,23 @@ export function ImportSheet({ accountId: presetAccount }: { accountId?: string }
   const [flip, setFlip] = useState(false)
   const [skipDupes, setSkipDupes] = useState(true)
 
+  const [reading, setReading] = useState(false)
+  const [note, setNote] = useState<string | undefined>()
   const onFile = async (f: File) => {
-    if (f.size > 10 * 1024 * 1024) { toast('That file is over 10 MB — split it into smaller exports', 'error'); return }
-    const text = await f.text()
-    const r = parseCSV(text)
-    if (!r.length) {
-      toast('That file looks empty — export a CSV from your bank and try again', 'error')
+    setReading(true)
+    let st: Statement
+    try { st = await readStatement(f) } catch (e) {
+      setReading(false)
+      toast(e instanceof StatementError ? e.message : 'That file couldn’t be read. Try a CSV, Excel, OFX, QIF or PDF statement.', 'error')
       return
     }
+    setReading(false)
+    const r = st.rows
     setFileName(f.name)
+    setNote(st.note)
     setRows(r)
+    setHasHeader(true)
+    if (st.map) { setMap(st.map); setFmt('YMD'); return }
     const head = r[0].map((h) => h.toLowerCase())
     const find = (...keys: string[]) => head.findIndex((h) => keys.some((k) => h.includes(k)))
     const m = {
@@ -966,7 +975,7 @@ export function ImportSheet({ accountId: presetAccount }: { accountId?: string }
 
   if (!data.accounts.length) {
     return (
-      <Sheet title="Import from a CSV file" onClose={close}>
+      <Sheet title="Import a statement" onClose={close}>
         <p className="muted">Add the account these transactions belong to first.</p>
         <button className="btn btn-primary mt-16" onClick={() => open({ kind: 'account' })}>Add an account</button>
       </Sheet>
@@ -976,8 +985,8 @@ export function ImportSheet({ accountId: presetAccount }: { accountId?: string }
   return (
     <Sheet
       wide
-      title={presetAccount && account ? `Import statement · ${account.name}` : 'Import a statement (CSV)'}
-      subtitle="Download a statement as CSV from your bank’s website, then drop it here. Your bank is never connected."
+      title={presetAccount && account ? `Import statement · ${account.name}` : 'Import a statement'}
+      subtitle="Download a statement from your bank’s website — PDF, CSV, Excel, OFX/QFX or QIF — then drop it here. Your bank is never connected."
       onClose={close}
       footer={
         <>
@@ -993,15 +1002,15 @@ export function ImportSheet({ accountId: presetAccount }: { accountId?: string }
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) onFile(f) }}
         >
-          <FileUp size={28} />
-          <b>Drop a .csv file or click to choose</b>
-          <span className="muted" style={{ fontSize: 13 }}>The file stays on this device</span>
-          <input type="file" accept=".csv,text/csv,.txt" hidden onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
+          {reading ? <RefreshCw size={28} className="spin" /> : <FileUp size={28} />}
+          <b>{reading ? 'Reading your statement…' : 'Drop a statement or click to choose'}</b>
+          <span className="muted" style={{ fontSize: 13 }}>PDF, CSV, Excel (.xlsx), OFX/QFX or QIF · read on this device, never uploaded</span>
+          <input type="file" accept={STATEMENT_ACCEPT} hidden disabled={reading} onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) onFile(f) }} />
         </label>
       ) : (
         <div className="form-stack">
           <div className="between">
-            <div><b>{fileName}</b> <span className="muted">· {body.length} rows</span></div>
+            <div><b>{fileName}</b> <span className="muted">· {body.length} rows</span>{note && <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>{note}</div>}</div>
             <button className="link-btn" onClick={() => setRows(null)}>Choose another file</button>
           </div>
           <div className="grid-3">
@@ -1462,6 +1471,7 @@ export function MoreSheet({ items }: { items: { href: string; label: string; ico
       <nav className="more-grid" aria-label="More pages">
         {items.map((i) => <a key={i.href} href={i.href} onClick={close}>{i.icon}{i.label}</a>)}
       </nav>
+      <ShareAppButton label className="btn btn-ghost mt-16" />
     </Sheet>
   )
 }
