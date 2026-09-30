@@ -1,0 +1,13 @@
+{
+  "name": "Finspace — private wealth cockpit",
+  "short_name": "Finspace",
+  "description": "Private, manual-first money management. Your data stays on your device.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060910",
+  "theme_color": "#060910",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
