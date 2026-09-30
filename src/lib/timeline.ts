@@ -64,7 +64,7 @@ export function buildTimeline(data: AppData, today = todayISO()): TimelineEvent[
   }
 
   for (const g of data.goals) {
-    for (const c of g.contributions) ev.push({ id: c.id, date: c.date, kind: 'goal', title: `${g.emoji} ${g.name}`, detail: c.note ?? 'Added to goal', amount: c.amount, positive: true, ref: { type: 'goal', id: g.id } })
+    for (const c of g.contributions) ev.push({ id: c.id, date: c.date, kind: 'goal', title: g.name, detail: c.note ?? 'Added to goal', amount: c.amount, positive: true, ref: { type: 'goal', id: g.id } })
   }
 
   if (data.holdings.length) {

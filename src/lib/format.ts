@@ -140,12 +140,9 @@ export function sinceLabel(isoTimestamp: string) {
 
 export const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4)
 
-export function greeting() {
-  const h = new Date().getHours()
-  if (h < 5) return 'Up late'
-  if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
+/** Today as a heading, e.g. "Wednesday 30 September". */
+export function todayTitle() {
+  return new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 /** Human name for a price source. */
