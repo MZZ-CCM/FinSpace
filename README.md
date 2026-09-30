@@ -15,11 +15,12 @@ npm run build      # static site in dist/ (Vercel, Netlify, Cloudflare Pages, Gi
 |---|---|
 | **Overview** | Net worth with assets and liabilities, change this month and this year, and a 7D–All chart · a summary of what changed since your last visit · the month in numbers · money in vs out · spending by category · **swipeable 3D card deck** · goals · upcoming payments · insights · sections you can show or hide |
 | **Money** | Activity (search, filters, #tags, bulk delete with undo, CSV import and export) · Recurring (added automatically when due) · Analysis (period comparisons, largest purchases, spending pace) |
-| **Accounts & cards** | 11 account types, each in its own currency · Swipe / Grid / Table / Compare views · **Import statement per card**, reconciled to the statement's closing balance · update balance · pay off a card or loan |
+| **Accounts & cards** | 11 account types, each in its own currency · Swipe / Grid / Table / Compare views · **Import statement per card** — PDF, CSV/TSV, Excel (.xlsx), OFX/QFX and QIF, read on the device and reconciled to the statement's closing balance · update balance · pay off a card or loan |
 | **Investments** | Units and prices, or just totals · made and lost this month · year to date · total return · value over time · heatmap · contribution to returns · every price labelled with its source |
 | **Budgets** | **Overall monthly budget** plus category budgets (monthly or yearly) · pace marker · forecast · how much a day you can spend and stay on budget · calm warnings |
 | **Goals, Insights, Reports** | Goals with the monthly amount needed · financial-health measures with the method explained · a paginated timeline · monthly, year-on-year and custom reports (print or save as PDF, CSV) |
-| **Everywhere** | ⌘K palette with plain-English commands (they pre-fill a form and never save on their own) · keyboard shortcuts · undo · dark, light and system themes · phone layout · installable offline app |
+| **Everywhere** | ⌘K palette with plain-English commands (they pre-fill a form and never save on their own) · keyboard shortcuts · undo · dark, light and system themes · share Finspace (native share sheet, or copy link) |
+| **iPhone, iPad & desktop app** | Installs from Safari (Share → Add to Home Screen) or Chrome/Edge (Install) and runs full-screen: Home Screen icon, safe-area layout for the notch and home indicator, bottom sheets, 44pt touch targets, no input zoom, offline shell. Typography: Geist for interface and figures, Fraunces for headings |
 
 ## Security & privacy
 
