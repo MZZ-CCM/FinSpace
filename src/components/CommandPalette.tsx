@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ArrowLeftRight, BarChart3, CreditCard, Eye, FileText, FileUp, HeartPulse, Home, LineChart, Moon, Plus, Receipt, RefreshCw, Repeat, Search, Settings, Sparkles, Target, Wallet } from 'lucide-react'
+import { CatGlyph, GoalGlyph } from './glyphs'
+import { ArrowLeftRight, BarChart3, CreditCard, Eye, FileText, FileUp, HeartPulse, Home, LineChart, Moon, Plus, Receipt, RefreshCw, Repeat, Search, Settings, Target, Wallet, CornerDownLeft } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { useUI, type Route } from '../lib/ui'
 import { dateLabel, money } from '../lib/format'
-import { categoryEmoji } from '../lib/meta'
 import { parseCommand } from '../lib/command'
 
 interface Item {
@@ -52,7 +52,7 @@ export function CommandPalette() {
       nav('Settings', { page: 'settings' }, <Settings size={16} />, 'backup export currency lock'),
       ...data.accounts.map((a) => ({ id: 'acc-' + a.id, group: 'Accounts', label: a.name, hint: a.institution, icon: <CreditCard size={16} />, run: () => go({ page: 'accounts', id: a.id }) })),
       ...data.holdings.map((h) => ({ id: 'h-' + h.id, group: 'Investments', label: `${h.symbol} · ${h.name}`, icon: <LineChart size={16} />, run: () => go({ page: 'investments', id: h.id }) })),
-      ...data.goals.map((g) => ({ id: 'g-' + g.id, group: 'Goals', label: `${g.emoji} ${g.name}`, icon: <Target size={16} />, run: () => go({ page: 'goals', id: g.id }) })),
+      ...data.goals.map((g) => ({ id: 'g-' + g.id, group: 'Goals', label: g.name, icon: <GoalGlyph goal={g} size={16} />, run: () => go({ page: 'goals', id: g.id }) })),
     ]
     const needle = q.trim().toLowerCase()
     if (!needle) return base.filter((i) => i.group === 'Actions' || i.group === 'Go to')
@@ -65,18 +65,18 @@ export function CommandPalette() {
         group: 'Command',
         label: intent.label,
         hint: intent.kind === 'tx' ? 'Opens a form to confirm' : 'Enter',
-        icon: <Sparkles size={16} />,
+        icon: <CornerDownLeft size={16} />,
         run: () => (intent.kind === 'tx' ? open({ kind: 'tx', defaults: intent.defaults }) : go(intent.route)),
       })
     }
     out.push(...base.filter((i) => (i.label + ' ' + (i.keywords ?? '') + ' ' + (i.hint ?? '')).toLowerCase().includes(needle)))
     const cats = [...new Set(data.transactions.map((t) => t.category))].filter((c) => c.toLowerCase().includes(needle)).slice(0, 3)
-    out.push(...cats.map((c) => ({ id: 'cat-' + c, group: 'Categories', label: `${categoryEmoji(c)} ${c}`, hint: 'Show transactions', icon: <Receipt size={16} />, run: () => go({ page: 'money', category: c }) })))
+    out.push(...cats.map((c) => ({ id: 'cat-' + c, group: 'Categories', label: c, hint: 'Show transactions', icon: <CatGlyph name={c} />, run: () => go({ page: 'money', category: c }) })))
     const txs = data.transactions
       .filter((t) => t.payee.toLowerCase().includes(needle) || (t.tags ?? []).some((x) => x.includes(needle.replace(/^#/, ''))) || t.date.includes(needle))
       .sort((a, b) => b.date.localeCompare(a.date))
       .slice(0, 6)
-      .map((t) => ({ id: 't-' + t.id, group: 'Transactions', label: t.payee, hint: `${money(t.amount, { currency: data.accounts.find((a) => a.id === t.accountId)?.currency })} · ${dateLabel(t.date)}`, icon: <span aria-hidden>{categoryEmoji(t.category)}</span>, run: () => open({ kind: 'tx', tx: t }) }))
+      .map((t) => ({ id: 't-' + t.id, group: 'Transactions', label: t.payee, hint: `${money(t.amount, { currency: data.accounts.find((a) => a.id === t.accountId)?.currency })} · ${dateLabel(t.date)}`, icon: <CatGlyph name={t.category} />, run: () => open({ kind: 'tx', tx: t }) }))
     out.push(...txs)
     return out
   }, [q, data, go, open, dispatch])

@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { CatGlyph, GoalGlyph } from './glyphs'
 import { ShareAppButton } from './ShareApp'
 import { readStatement, STATEMENT_ACCEPT, StatementError, type Statement } from '../lib/statements'
 import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, FileUp, RefreshCw, Trash2, X } from 'lucide-react'
@@ -214,7 +215,7 @@ export function TxSheet({ tx, defaults }: { tx?: Transaction; defaults?: Partial
             <div className="chips" role="group" aria-label="Category">
               {cats.map((c) => (
                 <button type="button" key={c.name} className="chip" aria-pressed={category === c.name} onClick={() => setCategory(c.name)}>
-                  <span aria-hidden>{c.emoji}</span>{c.name}
+                  <CatGlyph name={c.name} size={15} />{c.name}
                 </button>
               ))}
             </div>
@@ -1119,7 +1120,7 @@ export function BudgetSheet({ category }: { category?: string }) {
             <div className="chips">
               {cats.map((c) => (
                 <button type="button" key={c.name} className="chip" aria-pressed={cat === c.name} onClick={() => setCat(c.name)} disabled={data.budgets.some((b) => b.category === c.name)}>
-                  <span aria-hidden>{c.emoji}</span>{c.name}
+                  <CatGlyph name={c.name} size={15} />{c.name}
                 </button>
               ))}
             </div>
@@ -1237,7 +1238,7 @@ export function GoalSheet({ goal }: { goal?: Goal }) {
       createdAt: goal?.createdAt ?? todayISO(),
     }
     dispatch({ type: 'upsertGoal', goal: g })
-    toast(goal ? 'Goal updated' : `${g.emoji} ${g.name} created`, 'success')
+    toast(goal ? 'Goal updated' : `${g.name} created`, 'success')
     close()
   }
   const perMonth = t > 0 && targetDate > todayISO() ? goalProgress(data, { id: 'x', name, emoji, target: t, targetDate, accountId: accountId || undefined, contributions: s > 0 ? [{ id: 'y', date: todayISO(), amount: s }] : [], createdAt: todayISO() }).perMonth : null
@@ -1257,7 +1258,7 @@ export function GoalSheet({ goal }: { goal?: Goal }) {
       <form className="form-stack" onSubmit={(e) => { e.preventDefault(); save() }}>
         {!goal && (
           <div className="chips" role="group" aria-label="Suggestions">
-            {GOAL_PRESETS.map((p) => <button type="button" key={p.name} className="chip" aria-pressed={name === p.name} onClick={() => { setName(p.name); setEmoji(p.emoji) }}><span aria-hidden>{p.emoji}</span>{p.name}</button>)}
+            {GOAL_PRESETS.map((p) => <button type="button" key={p.name} className="chip" aria-pressed={name === p.name} onClick={() => { setName(p.name); setEmoji(p.emoji) }}><GoalGlyph goal={p} size={15} />{p.name}</button>)}
           </div>
         )}
         <div style={{ display: 'grid', gridTemplateColumns: '72px 1fr', gap: 12 }}>
@@ -1308,7 +1309,7 @@ export function ContributeSheet({ goalId }: { goalId: string }) {
     close()
   }
   return (
-    <Sheet title={`${g.emoji} ${g.name}`} subtitle={`${money(p.current)} of ${money(g.target)}`} onClose={close}
+    <Sheet title={g.name} subtitle={`${money(p.current)} of ${money(g.target)}`} onClose={close}
       footer={<><button className="btn" onClick={close}>Cancel</button><button className="btn btn-primary" onClick={save}>{dir === 'add' ? 'Add to goal' : 'Take from goal'}</button></>}>
       <div className="form-stack">
         <Progress ratio={p.ratio} label={`${Math.round(p.ratio * 100)}% of goal`} tone="accent" />
@@ -1403,7 +1404,7 @@ export function RecurringSheet({ rule }: { rule?: RecurringRule }) {
           <Field label="Category" error={tried ? errors.category : undefined}>
             <select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">Choose…</option>
-              {cats.map((c) => <option key={c.name} value={c.name}>{c.emoji} {c.name}</option>)}
+              {cats.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
             </select>
           </Field>
         )}
