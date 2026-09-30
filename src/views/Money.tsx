@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { CatGlyph, CatLabel } from '../components/glyphs'
 import { Download, FileUp, Plus, Receipt, Repeat, Search, Trash2, X } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { useUI, type MoneyTab } from '../lib/ui'
 import type { Transaction, TxType } from '../lib/types'
 import { addMonths, dateLabel, money, monthEnd, monthKey, monthLabel, monthStart, pct, shortDate, todayISO } from '../lib/format'
-import { ADJUSTMENT_CATEGORY, TRANSFER_CATEGORY, categoryEmoji, expenseCategories, freqLabel, incomeCategories } from '../lib/meta'
+import { ADJUSTMENT_CATEGORY, TRANSFER_CATEGORY, expenseCategories, freqLabel, incomeCategories } from '../lib/meta'
 import { byCategory, flowBetween, flowSeries, largestTransactions, monthlyEquivalent, spendingVelocity, toBase, upcoming } from '../lib/calc'
 import { download, transactionsToCSV } from '../lib/csv'
 import { ChartFrame, Delta, Empty, HowCalculated, Tabs } from '../components/ui'
@@ -34,7 +35,7 @@ export function TxList({ txs, grouped = true, selectable, selected, onToggle, ac
     return (
       <div key={t.id} className={`tx-row ${isSel ? 'selected' : ''}`} style={{ gridTemplateColumns: selectable ? '20px 40px minmax(0,1fr) auto' : undefined, opacity: future ? 0.6 : 1 }}>
         {selectable && <input type="checkbox" className="tx-check" checked={!!isSel} onChange={() => onToggle?.(t.id)} aria-label={`Select ${t.payee}`} />}
-        <span className="tx-ic" aria-hidden>{categoryEmoji(t.category)}</span>
+        <span className="tx-ic" aria-hidden><CatGlyph name={t.category} /></span>
         <button className="tx-main" style={{ background: 'none', border: 0, padding: 0, textAlign: 'left', color: 'inherit', font: 'inherit' }} onClick={() => open({ kind: 'tx', tx: t })} aria-label={`Edit ${t.payee}, ${money(amount, { currency: amountCcy })}`}>
           <div className="tx-payee">{t.payee}{t.recurringId && <Repeat size={12} style={{ marginLeft: 6, verticalAlign: -1, color: 'var(--text-3)' }} aria-label="Repeating" />}</div>
           <div className="tx-meta">
@@ -283,7 +284,7 @@ function Recurring() {
                 const a = accs.get(r.accountId)
                 return (
                   <tr key={r.id} className="clickable" onClick={() => open({ kind: 'recurring', rule: r })} style={{ opacity: r.active ? 1 : 0.5 }}>
-                    <td><div className="row"><span className="tx-ic" aria-hidden>{categoryEmoji(r.category)}</span><div><div style={{ fontWeight: 600 }}>{r.payee}</div><div className="muted" style={{ fontSize: 12 }}>{r.type === 'transfer' ? `Transfer to ${accs.get(r.toAccountId ?? '')?.name ?? '—'}` : r.category}{!r.active && ' · paused'}</div></div></div></td>
+                    <td><div className="row"><span className="tx-ic" aria-hidden><CatGlyph name={r.category} /></span><div><div style={{ fontWeight: 600 }}>{r.payee}</div><div className="muted" style={{ fontSize: 12 }}>{r.type === 'transfer' ? `Transfer to ${accs.get(r.toAccountId ?? '')?.name ?? '—'}` : r.category}{!r.active && ' · paused'}</div></div></div></td>
                     <td className="hide-sm muted">{freqLabel(r.frequency)}</td>
                     <td className="hide-sm muted">{a?.name ?? '—'}</td>
                     <td>{r.active ? shortDate(r.nextDate) : '—'}</td>
@@ -375,7 +376,7 @@ function Analysis() {
                   const before = spendPrev.find((x) => x.category === c.category)?.amount ?? 0
                   return (
                     <tr key={c.category} className="clickable" onClick={() => go({ page: 'money', category: c.category })}>
-                      <td><span aria-hidden>{categoryEmoji(c.category)}</span> {c.category}</td>
+                      <td><CatLabel name={c.category} /></td>
                       <td className="r num" style={{ fontWeight: 600 }}>{money(c.amount, { cents: false })}</td>
                       <td className="r num hide-sm muted">{money(c.amount / avgMonths, { cents: false })}</td>
                       <td className="r">{before > 0 ? <Delta value={(c.amount - before) / before} invert /> : <span className="pill">New</span>}</td>
@@ -394,7 +395,7 @@ function Analysis() {
           <div className="barlist">
             {income.map((c, i) => (
               <div key={c.category} className="barlist-row">
-                <span className="name"><span aria-hidden>{categoryEmoji(c.category)}</span><span>{c.category}</span></span>
+                <span className="name"><span className="cat-glyph"><CatGlyph name={c.category} size={14} /></span><span>{c.category}</span></span>
                 <span className="amt num">{money(c.amount, { cents: false })}<small>{pct(c.amount / (flow.income || 1))}</small></span>
                 <span className="track"><i style={{ width: `${(c.amount / income[0].amount) * 100}%`, background: 'var(--in)', animationDelay: `${i * 50}ms` }} /></span>
               </div>
@@ -414,7 +415,7 @@ function Analysis() {
           <div className="form-stack" style={{ gap: 10 }}>
             {recurringOut.slice(0, 8).map(({ r, monthly }) => (
               <button key={r.id} className="between" style={{ background: 'none', border: 0, padding: 0, color: 'inherit', font: 'inherit', fontSize: 13 }} onClick={() => open({ kind: 'recurring', rule: r })}>
-                <span><span aria-hidden>{categoryEmoji(r.category)}</span> {r.payee} <span className="muted">· {freqLabel(r.frequency).toLowerCase()}</span></span>
+                <span className="cat-label"><span className="cat-glyph"><CatGlyph name={r.category} size={14} /></span>{r.payee} <span className="muted">· {freqLabel(r.frequency).toLowerCase()}</span></span>
                 <b className="num">{money(monthly)}/mo</b>
               </button>
             ))}

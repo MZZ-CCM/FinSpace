@@ -1,9 +1,9 @@
 import { Pencil, Plus, Target } from 'lucide-react'
+import { CatGlyph, CatLabel } from '../components/glyphs'
 import { useStore } from '../lib/store'
 import { useUI } from '../lib/ui'
 import { addMonths, money, monthEnd, monthLabel, todayISO } from '../lib/format'
 import { budgetUsage, overallBudgetUsage, spendByCategory } from '../lib/calc'
-import { categoryEmoji } from '../lib/meta'
 import type { Budget } from '../lib/types'
 import { Empty, HowCalculated, MonthSwitch } from '../components/ui'
 
@@ -46,7 +46,7 @@ export function Budgets() {
     const label = u.ratio > 1 ? `${money(u.spent - b.limit, { cents: false })} over` : u.ratio >= 0.8 ? `You’ve used ${Math.round(u.ratio * 100)}% · ${money(u.remaining, { cents: false })} left` : `${money(u.remaining, { cents: false })} left`
     return (
       <button key={b.category} className="barlist-row" style={{ background: 'none', border: 0, padding: 0, textAlign: 'left', color: 'inherit', font: 'inherit' }} onClick={() => open({ kind: 'budget', category: b.category })} aria-label={`${b.category}: ${money(u.spent)} of ${money(b.limit)}. ${label}. Edit budget.`}>
-        <span className="name"><span aria-hidden>{categoryEmoji(b.category)}</span><span>{b.category}</span></span>
+        <span className="name"><span className="cat-glyph"><CatGlyph name={b.category} size={14} /></span><span>{b.category}</span></span>
         <span className="amt num">{money(u.spent, { cents: false })} <small>of {money(b.limit, { cents: false })}</small></span>
         <span className="track" style={{ height: 8 }}>
           <i className={status} style={{ width: `${Math.min(100, u.ratio * 100)}%`, animationDelay: `${i * 50}ms` }} />
@@ -141,7 +141,7 @@ export function Budgets() {
             <div className="form-stack" style={{ gap: 12 }}>
               {unbudgeted.map((u) => (
                 <div key={u.category} className="between">
-                  <button className="link-btn" style={{ color: 'var(--text-1)' }} onClick={() => go({ page: 'money', category: u.category, month })}>{categoryEmoji(u.category)} {u.category}</button>
+                  <button className="link-btn" style={{ color: 'var(--text-1)' }} onClick={() => go({ page: 'money', category: u.category, month })}><CatLabel name={u.category} /></button>
                   <span className="row"><span className="num">{money(u.amount, { cents: false })}</span><button className="btn btn-sm btn-ghost" onClick={() => open({ kind: 'budget', category: u.category })} aria-label={`Set budget for ${u.category}`}>Set</button></span>
                 </div>
               ))}

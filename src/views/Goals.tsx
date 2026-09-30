@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { GoalGlyph } from '../components/glyphs'
 import { ArrowLeft, Pencil, Plus, Target } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { useUI } from '../lib/ui'
@@ -51,7 +52,7 @@ function GoalCard({ goal, onClick }: { goal: Goal; onClick: () => void }) {
   return (
     <button className="goal-card" onClick={onClick} aria-label={`${goal.name}: ${Math.round(p.ratio * 100)}% of ${money(goal.target)}`}>
       <div className="row" style={{ gap: 16 }}>
-        <div className="goal-ring" style={{ '--p': Math.min(100, p.ratio * 100) } as React.CSSProperties} aria-hidden>{goal.emoji}</div>
+        <div className="goal-ring" style={{ '--p': Math.min(100, p.ratio * 100) } as React.CSSProperties} aria-hidden><GoalGlyph goal={goal} size={22} /></div>
         <div style={{ minWidth: 0 }}>
           <div style={{ font: '600 17px var(--display)' }}>{goal.name}</div>
           <div className="muted" style={{ fontSize: 13 }}>{acc ? `Follows ${acc.name}` : `${goal.contributions.length} contribution${goal.contributions.length === 1 ? '' : 's'}`}</div>
@@ -83,7 +84,7 @@ function GoalDetail({ goal }: { goal: Goal }) {
         <section className="hero span-12">
           <div className="hero-top">
             <div className="row" style={{ gap: 24 }}>
-              <div className="goal-ring" style={{ '--p': Math.min(100, p.ratio * 100), width: 104, height: 104, fontSize: 40 } as React.CSSProperties} aria-hidden>{goal.emoji}</div>
+              <div className="goal-ring" style={{ '--p': Math.min(100, p.ratio * 100), width: 104, height: 104, fontSize: 40 } as React.CSSProperties} aria-hidden><GoalGlyph goal={goal} size={34} /></div>
               <div>
                 <div className="eyebrow">{goal.name}</div>
                 <div className="hero-value num">{money(p.current, { cents: false })} <span className="muted" style={{ fontSize: '0.45em' }}>of {money(goal.target, { cents: false })}</span></div>

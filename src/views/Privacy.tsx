@@ -23,8 +23,7 @@ export function Privacy() {
       <h2>Optional services and what they receive</h2>
       <p>These are only contacted when you use the related feature. Like any website, they see your IP address and browser type.</p>
       <ul>
-        <li><b>CoinGecko</b> (crypto prices) — the coin IDs you ask about.</li>
-        <li><b>Finnhub</b> (stock prices) — the ticker symbols you ask about and your own free API key.</li>
+        <li><b>CoinGecko</b> and <b>Coinbase</b> (crypto prices) — the coin names you ask about.</li>
         <li><b>Frankfurter / European Central Bank rates</b> (exchange rates) — the currency codes you ask about.</li>
       </ul>
       <p>Fonts and all other files are served from this site — nothing loads from Google or other third parties.</p>

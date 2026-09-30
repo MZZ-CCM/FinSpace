@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
+import { CatLabel } from '../components/glyphs'
 import { Download, FileText, Printer } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { useUI } from '../lib/ui'
 import { addMonths, dayBefore, money, monthEnd, monthLabel, monthStart, pct, todayISO } from '../lib/format'
 import { byCategory, flowBetween, largestTransactions, netInvested, portfolioReturn, positionAt } from '../lib/calc'
-import { categoryEmoji } from '../lib/meta'
 import { download, transactionsToCSV } from '../lib/csv'
 import { Delta, Empty, HowCalculated, MonthSwitch, Tabs } from '../components/ui'
 import { FlowBars } from '../components/charts'
@@ -137,7 +137,7 @@ function MonthReport({ month, setMonth }: { month: string; setMonth: (m: string)
           <tbody>
             {cats.map((c) => {
               const b = catsPrev.find((x) => x.category === c.category)?.amount ?? 0
-              return <tr key={c.category}><td>{categoryEmoji(c.category)} {c.category}</td><td className="r num" style={{ fontWeight: 600 }}>{money(c.amount, { cents: false })}</td><td className="r num muted">{pct(c.amount / (cur.expense || 1))}</td><td className="r">{b > 0 ? <Delta value={c.amount - b} format="money" invert /> : <span className="pill">New</span>}</td></tr>
+              return <tr key={c.category}><td><CatLabel name={c.category} /></td><td className="r num" style={{ fontWeight: 600 }}>{money(c.amount, { cents: false })}</td><td className="r num muted">{pct(c.amount / (cur.expense || 1))}</td><td className="r">{b > 0 ? <Delta value={c.amount - b} format="money" invert /> : <span className="pill">New</span>}</td></tr>
             })}
             {!cats.length && <tr><td colSpan={4} className="muted">No spending this month.</td></tr>}
           </tbody>
@@ -146,7 +146,7 @@ function MonthReport({ month, setMonth }: { month: string; setMonth: (m: string)
       <section className="panel span-5">
         <div className="panel-head"><div><h2 className="panel-title">Money in</h2></div></div>
         <div className="form-stack" style={{ gap: 10 }}>
-          {inc.map((c) => <div key={c.category} className="between" style={{ fontSize: 13 }}><span>{categoryEmoji(c.category)} {c.category}</span><b className="num">{money(c.amount, { cents: false })}</b></div>)}
+          {inc.map((c) => <div key={c.category} className="between" style={{ fontSize: 13 }}><CatLabel name={c.category} /><b className="num">{money(c.amount, { cents: false })}</b></div>)}
           {!inc.length && <p className="muted" style={{ margin: 0 }}>No money in this month.</p>}
         </div>
         <div className="divider" />
@@ -211,11 +211,11 @@ function RangeReport({ from, to }: { from: string; to: string }) {
       </section>
       <section className="panel span-6">
         <div className="panel-head"><div><h2 className="panel-title">Spending by category</h2></div></div>
-        <div className="form-stack" style={{ gap: 10 }}>{out.map((c) => <div key={c.category} className="between" style={{ fontSize: 13 }}><span>{categoryEmoji(c.category)} {c.category}</span><span className="num"><b>{money(c.amount, { cents: false })}</b> <span className="muted">{pct(c.amount / (s.expense || 1))}</span></span></div>)}</div>
+        <div className="form-stack" style={{ gap: 10 }}>{out.map((c) => <div key={c.category} className="between" style={{ fontSize: 13 }}><CatLabel name={c.category} /><span className="num"><b>{money(c.amount, { cents: false })}</b> <span className="muted">{pct(c.amount / (s.expense || 1))}</span></span></div>)}</div>
       </section>
       <section className="panel span-6">
         <div className="panel-head"><div><h2 className="panel-title">Money in by source</h2></div></div>
-        <div className="form-stack" style={{ gap: 10 }}>{inc.map((c) => <div key={c.category} className="between" style={{ fontSize: 13 }}><span>{categoryEmoji(c.category)} {c.category}</span><b className="num">{money(c.amount, { cents: false })}</b></div>)}</div>
+        <div className="form-stack" style={{ gap: 10 }}>{inc.map((c) => <div key={c.category} className="between" style={{ fontSize: 13 }}><CatLabel name={c.category} /><b className="num">{money(c.amount, { cents: false })}</b></div>)}</div>
         <div className="divider" />
         <button className="btn no-print" onClick={() => download(`finspace-${from}-to-${to}.csv`, transactionsToCSV(data, txs), 'text/csv')}><Download size={15} /> Export {txs.length} transactions (CSV)</button>
       </section>

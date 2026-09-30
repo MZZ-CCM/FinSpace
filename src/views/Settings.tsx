@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Download, ExternalLink, KeyRound, Lock, Moon, Plus, RefreshCw, Sun, Trash2 } from 'lucide-react'
+import { CatGlyph } from '../components/glyphs'
+import { Download, Lock, Moon, Plus, RefreshCw, Sun, Trash2 } from 'lucide-react'
 import { EMPTY, useStore } from '../lib/store'
 import { CURRENCIES, expenseCategories, incomeCategories } from '../lib/meta'
 import { download, transactionsToCSV } from '../lib/csv'
@@ -13,10 +14,9 @@ import { AccountPanel } from '../components/Cloud'
 export function Settings() {
   const { data, dispatch, toast, withUndo, lockNow } = useStore()
   const s = data.settings
-  const [key, setKey] = useState(s.finnhubKey ?? '')
   const [confirm, setConfirm] = useState<null | 'reset' | 'currency'>(null)
   const [pendingCcy, setPendingCcy] = useState('')
-  const [newCat, setNewCat] = useState({ name: '', emoji: '🏷️', kind: 'expense' as 'expense' | 'income' })
+  const [newCat, setNewCat] = useState({ name: '', emoji: '', kind: 'expense' as 'expense' | 'income' })
   const [rates, setRates] = useState<Record<string, string>>({})
   const [fetching, setFetching] = useState('')
 
@@ -40,7 +40,7 @@ export function Settings() {
         <h2 className="panel-title">Preferences</h2>
         <div className="form-stack mt-16">
           <div className="grid-2">
-            <Field label="Your first name" optional hint="Used for the greeting">
+            <Field label="Your first name" optional hint="Shown on your overview">
               <input className="input" value={s.name} onChange={(e) => dispatch({ type: 'settings', patch: { name: e.target.value } })} />
             </Field>
             <Field label="Main currency" hint="Totals are shown in this currency">
@@ -95,10 +95,9 @@ export function Settings() {
         <h2 className="panel-title">Your categories</h2>
         <p className="muted" style={{ marginTop: 8, fontSize: 13 }}>Add your own alongside the built-in ones.</p>
         <div className="row mt-16" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <Field label="Icon"><input className="input" style={{ width: 64, textAlign: 'center' }} maxLength={4} value={newCat.emoji} onChange={(e) => setNewCat({ ...newCat, emoji: e.target.value })} /></Field>
           <div style={{ flex: 1, minWidth: 180 }}><Field label="Name" error={catErr}><input className="input" placeholder="e.g. Pets" value={newCat.name} onChange={(e) => setNewCat({ ...newCat, name: e.target.value })} /></Field></div>
           <Field label="Type"><select className="select" value={newCat.kind} onChange={(e) => setNewCat({ ...newCat, kind: e.target.value as 'expense' | 'income' })}><option value="expense">Money out</option><option value="income">Money in</option></select></Field>
-          <button className="btn btn-primary" disabled={!newCat.name.trim() || !!catErr} onClick={() => { dispatch({ type: 'settings', patch: { customCategories: [...s.customCategories, { ...newCat, name: newCat.name.trim() }] } }); toast(`${newCat.name.trim()} added`, 'success'); setNewCat({ name: '', emoji: '🏷️', kind: 'expense' }) }}><Plus size={15} /> Add</button>
+          <button className="btn btn-primary" disabled={!newCat.name.trim() || !!catErr} onClick={() => { dispatch({ type: 'settings', patch: { customCategories: [...s.customCategories, { ...newCat, name: newCat.name.trim() }] } }); toast(`${newCat.name.trim()} added`, 'success'); setNewCat({ name: '', emoji: '', kind: 'expense' }) }}><Plus size={15} /> Add</button>
         </div>
         {s.customCategories.length > 0 && (
           <div className="chips mt-16">
@@ -106,7 +105,7 @@ export function Settings() {
               const used = data.transactions.some((t) => t.category === c.name)
               return (
                 <span key={c.name} className="chip" style={{ cursor: 'default' }}>
-                  {c.emoji} {c.name} <span className="muted">· {c.kind === 'expense' ? 'out' : 'in'}</span>
+                  <CatGlyph name={c.name} size={14} /> {c.name} <span className="muted">· {c.kind === 'expense' ? 'out' : 'in'}</span>
                   <button className="btn btn-ghost btn-sm btn-icon" style={{ height: 22, width: 22 }} aria-label={`Remove ${c.name}`} title={used ? 'Transactions keep this category name; it just won’t be offered for new ones' : 'Remove'}
                     onClick={() => withUndo(`${c.name} removed`, { type: 'settings', patch: { customCategories: s.customCategories.filter((x) => x.name !== c.name) } })}><Trash2 size={12} /></button>
                 </span>
@@ -117,19 +116,10 @@ export function Settings() {
       </section>
 
       <section className="panel mt-24">
-        <h2 className="panel-title">Live prices <span className="pill gold" style={{ marginLeft: 8 }}>Optional · free</span></h2>
+        <h2 className="panel-title">Live prices</h2>
         <p className="muted" style={{ marginTop: 8, fontSize: 13 }}>
-          Finspace works fully without this — manual prices are always the source of truth. Crypto prices come from CoinGecko (no key; a few requests a minute). For stock and ETF prices, get a free Finnhub key (free tier: 60 requests a minute, US listings, no card required) and paste it here. It’s stored only on this device.
+          Crypto prices update from CoinGecko, with Coinbase as a backup. Both are free and need no key or account. Stocks, funds and bonds are priced by you: use <b>Update prices</b> on the Investments page. Your own prices are always the source of truth.
         </p>
-        <div className="row mt-16" style={{ alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: 240 }}>
-            <Field label="Finnhub API key" optional>
-              <div className="input-affix"><span className="affix"><KeyRound size={15} /></span><input className="input" type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} placeholder="Paste your free key" /></div>
-            </Field>
-          </div>
-          <button className="btn btn-primary" onClick={() => { dispatch({ type: 'settings', patch: { finnhubKey: key.trim() || undefined } }); toast(key.trim() ? 'Key saved (encrypted with your data)' : 'Key removed', 'success') }}>Save key</button>
-          <a className="btn btn-ghost" href="https://finnhub.io/register" target="_blank" rel="noreferrer noopener">Get a free key <ExternalLink size={14} /></a>
-        </div>
       </section>
 
       <section className="panel mt-24">

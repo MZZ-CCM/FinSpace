@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { GoalGlyph } from '../components/glyphs'
 import { ArrowRight, Compass, HardDrive, Lock, PenLine, Plus, ShieldCheck, Trash2, WalletCards } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { buildSample } from '../lib/sample'
@@ -142,7 +143,7 @@ export function Onboarding() {
               <div className="field">
                 <span>Start a goal or two</span>
                 <div className="chips">
-                  {GOAL_PRESETS.map((g) => <button type="button" key={g.name} className="chip" aria-pressed={goals.has(g.name)} onClick={() => { const n = new Set(goals); n.has(g.name) ? n.delete(g.name) : n.add(g.name); setGoals(n) }}><span aria-hidden>{g.emoji}</span>{g.name}</button>)}
+                  {GOAL_PRESETS.map((g) => <button type="button" key={g.name} className="chip" aria-pressed={goals.has(g.name)} onClick={() => { const n = new Set(goals); n.has(g.name) ? n.delete(g.name) : n.add(g.name); setGoals(n) }}><GoalGlyph goal={g} size={15} />{g.name}</button>)}
                 </div>
                 <span className="hint">We’ll add a starting target you can change.</span>
               </div>

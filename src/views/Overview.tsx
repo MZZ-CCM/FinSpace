@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { AlertTriangle, ArrowRight, CalendarClock, CreditCard, Flame, PiggyBank, Plus, Receipt, Repeat, Settings2, Sparkles, Target, TrendingDown, TrendingUp, Trophy, X } from 'lucide-react'
+import { CatGlyph, GoalGlyph } from '../components/glyphs'
+import { AlertTriangle, ArrowRight, History, CalendarClock, CreditCard, Flame, PiggyBank, Plus, Receipt, Repeat, Settings2, Target, TrendingDown, TrendingUp, Trophy, X } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { useUI } from '../lib/ui'
 import { addMonths, dayBefore, money, monthEnd, monthLabel, monthStart, pct, relativeDays, shortDate, sinceLabel, todayISO } from '../lib/format'
 import { RANGES, flowSeries, goalProgress, missingRates, monthFlow, netWorthSeries, portfolioReturn, positionAt, spendByCategory, upcoming, type Range } from '../lib/calc'
 import { buildInsights, type InsightIcon } from '../lib/insights'
-import { categoryEmoji } from '../lib/meta'
 import { AnimatedMoney, ChartFrame, Delta, Empty, HowCalculated, Progress } from '../components/ui'
 import { AreaLine, FlowBars, RangeTabs } from '../components/charts'
 import { CardDeck } from '../components/CardDeck'
@@ -15,7 +15,7 @@ const RANGE_KEY = 'finspace:nwRange'
 
 export const INSIGHT_ICONS: Record<InsightIcon, JSX.Element> = {
   up: <TrendingUp size={18} />, down: <TrendingDown size={18} />, budget: <AlertTriangle size={18} />, card: <CreditCard size={18} />,
-  trophy: <Trophy size={18} />, piggy: <PiggyBank size={18} />, repeat: <Repeat size={18} />, receipt: <Receipt size={18} />, chart: <TrendingUp size={18} />, streak: <Sparkles size={18} />,
+  trophy: <Trophy size={18} />, piggy: <PiggyBank size={18} />, repeat: <Repeat size={18} />, receipt: <Receipt size={18} />, chart: <TrendingUp size={18} />, streak: <Flame size={18} />,
 }
 
 export function Overview() {
@@ -47,7 +47,7 @@ export function Overview() {
     return (
       <div className="panel page-enter">
         <Empty
-          icon={<Sparkles size={28} />}
+          icon={<CreditCard size={28} />}
           title="Your money, all in one place"
           body="Start by adding an account — a bank account, credit card or cash. You enter the numbers; nothing connects to your bank."
           action={
@@ -74,7 +74,7 @@ export function Overview() {
     <div className="dash stagger">
       {since && (since.change !== 0 || since.recurringAdded > 0) && (
         <div className="since span-12" role="status">
-          <Sparkles size={18} style={{ color: 'var(--accent)' }} />
+          <History size={18} style={{ color: 'var(--accent)' }} />
           <span className="grow">
             <b>Since your last visit</b> {since.change !== 0 && <span className="muted">({sinceLabel(since.at)})</span>}
             {since.change !== 0 && <> · net worth <b className={`num ${since.change >= 0 ? 'pos' : 'neg'}`}>{money(since.change, { sign: true })}</b></>}
@@ -198,7 +198,7 @@ export function Overview() {
             <div className="barlist">
               {spend.slice(0, 7).map((c, i) => (
                 <button key={c.category} className="barlist-row" style={{ background: 'none', border: 0, padding: 0, textAlign: 'left', color: 'inherit' }} onClick={() => go({ page: 'money', category: c.category, month })}>
-                  <span className="name"><span aria-hidden>{categoryEmoji(c.category)}</span><span>{c.category}</span></span>
+                  <span className="name"><span className="cat-glyph"><CatGlyph name={c.category} size={14} /></span><span>{c.category}</span></span>
                   <span className="amt num">{money(c.amount, { cents: false })}<small>{pct(c.amount / (spendTotal || 1))}</small></span>
                   <span className="track"><i style={{ width: `${(c.amount / spend[0].amount) * 100}%`, animationDelay: `${i * 50}ms` }} /></span>
                 </button>
@@ -223,7 +223,7 @@ export function Overview() {
                 const p = goalProgress(data, g, today)
                 return (
                   <button key={g.id} onClick={() => go({ page: 'goals', id: g.id })} style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto', gap: 12, alignItems: 'center', background: 'none', border: 0, padding: 0, color: 'inherit', font: 'inherit', textAlign: 'left' }}>
-                    <span style={{ fontSize: 24 }} aria-hidden>{g.emoji}</span>
+                    <span className="goal-glyph" aria-hidden><GoalGlyph goal={g} /></span>
                     <span style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <span className="between" style={{ fontSize: 13 }}><b>{g.name}</b><span className="num muted">{money(p.current, { cents: false })} / {money(g.target, { cents: false })}</span></span>
                       <Progress ratio={p.ratio} label={`${g.name}: ${Math.round(p.ratio * 100)}%`} tone={p.done ? 'ok' : 'accent'} />
@@ -247,7 +247,7 @@ export function Overview() {
             <div className="form-stack" style={{ gap: 4 }}>
               {soon.map((u, i) => (
                 <button key={u.rule.id + i} className="tx-row" onClick={() => open({ kind: 'recurring', rule: u.rule })}>
-                  <span className="tx-ic" aria-hidden>{categoryEmoji(u.rule.category)}</span>
+                  <span className="tx-ic" aria-hidden><CatGlyph name={u.rule.category} /></span>
                   <span className="tx-main"><span className="tx-payee" style={{ display: 'block' }}>{u.rule.payee}</span><span className="tx-meta">{shortDate(u.date)} · {relativeDays(u.date)}</span></span>
                   <span className={`tx-amt num ${u.rule.type === 'income' ? 'in' : u.rule.type === 'transfer' ? 'xfer' : ''}`}>{u.rule.type === 'income' ? '+' : u.rule.type === 'expense' ? '−' : ''}{money(u.rule.amount, { currency: data.accounts.find((a) => a.id === u.rule.accountId)?.currency })}</span>
                 </button>
