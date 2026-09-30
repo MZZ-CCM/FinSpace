@@ -83,7 +83,7 @@ describe('onboarding', () => {
 
   it('sets up with your own numbers', async () => {
     await startFresh()
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toMatch(/Ada/)
+    expect(document.querySelector('.topbar .crumb')?.textContent).toMatch(/Ada/)
     const d = await saved()
     expect(d.accounts.map((a: { name: string }) => a.name)).toEqual(['Current account', 'Savings'])
     expect(d.accounts[0].openingBalance).toBe(1500)
@@ -184,7 +184,7 @@ describe('account security', () => {
     expect(await screen.findByText(/didn’t work/, undefined, { timeout: 4000 })).toBeTruthy()
     fireEvent.change(screen.getByLabelText('Encryption passphrase'), { target: { value: PASS } })
     fireEvent.click(screen.getByRole('button', { name: 'Unlock' }))
-    await waitFor(() => expect(screen.getByRole('heading', { level: 1 }).textContent).toMatch(/Ada/), { timeout: 4000 })
+    await waitFor(() => expect(document.querySelector('.topbar .crumb')?.textContent).toMatch(/Ada/), { timeout: 4000 })
   })
 
   it('won’t open another account’s data on a shared device', async () => {
@@ -204,6 +204,6 @@ describe('account security', () => {
     mount()
     fireEvent.change(await screen.findByLabelText('Encryption passphrase', undefined, { timeout: 3000 }), { target: { value: PASS } })
     fireEvent.click(screen.getByRole('button', { name: 'Unlock my data' }))
-    await waitFor(() => expect(screen.getByRole('heading', { level: 1 }).textContent).toMatch(/Ada/), { timeout: 5000 })
+    await waitFor(() => expect(document.querySelector('.topbar .crumb')?.textContent).toMatch(/Ada/), { timeout: 5000 })
   })
 })

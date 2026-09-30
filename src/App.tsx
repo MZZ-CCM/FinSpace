@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CreditCard, Eye, EyeOff, FileText, HeartPulse, Home, LineChart, Lock, MoreHorizontal, Plus, Receipt, Search, Settings as SettingsIcon, Target, Wallet, X } from 'lucide-react'
 import { useStore } from './lib/store'
 import { routeHref, useUI, type Route } from './lib/ui'
-import { greeting, monthLabel } from './lib/format'
+import { monthLabel, todayTitle } from './lib/format'
 import { Overview } from './views/Overview'
 import { Accounts } from './views/Accounts'
 import { Money } from './views/Money'
@@ -146,12 +146,12 @@ export function App() {
   if (locked) return <><div className="ambient"><div className="grain" /></div><AuthGate>{null}</AuthGate>{toastStack()}</>
   if (!data.settings.onboarded) return <><div className="ambient"><div className="grain" /></div><Onboarding /><CloudAutoWriter />{toastStack()}</>
 
-  const title = route.page === 'overview' ? `${greeting()}${data.settings.name ? ', ' + data.settings.name : ''}` : pageName
+  const title = route.page === 'overview' ? todayTitle() : pageName
   const idName =
     route.page === 'accounts' && route.id ? data.accounts.find((a) => a.id === route.id)?.name :
     route.page === 'investments' && route.id ? data.holdings.find((h) => h.id === route.id)?.symbol :
     route.page === 'goals' && route.id ? data.goals.find((g) => g.id === route.id)?.name : undefined
-  const crumb = route.page === 'overview' ? `Here’s ${monthLabel(month)} at a glance` : idName ? `${pageName} › ${idName}` : route.page === 'privacy' ? 'How your data is handled, in plain English' : route.page === 'settings' ? 'Preferences, privacy, exchange rates and backups' : current?.sub ?? ''
+  const crumb = route.page === 'overview' ? `${data.settings.name ? data.settings.name + ' · ' : ''}${monthLabel(month)} at a glance` : idName ? `${pageName} › ${idName}` : route.page === 'privacy' ? 'How your data is handled, in plain English' : route.page === 'settings' ? 'Preferences, privacy, exchange rates and backups' : current?.sub ?? ''
   const privacy = data.settings.privacy
   const moreItems = [...NAV.filter((n) => !MOBILE_TABS.includes(n.page)), { page: 'settings' as Page, label: 'Settings', icon: SettingsIcon, key: 'S', sub: '' }]
 
